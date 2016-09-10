@@ -1,0 +1,14 @@
+{
+  "name": "go-client",
+  "version": "0.0.1",
+  "description": "Attempt at using electron and maybe angular",
+  "license": "UNLICENSED",
+  "main": "main.js",
+  "devDependencies": {
+    "electron-prebuilt": "^1.3.2"
+  },
+  "dependencies": {
+    "electron": "^1.3.5",
+    "socket.io-client": "^1.4.8"
+  }
+}
