@@ -14,8 +14,6 @@ function createArray(length) {
 
 socket.on('connect', () => {
 	console.log('connection')
-
-	socket.emit('message', { move: "asdf" })
 })
 
 window.onload = function () {
@@ -54,6 +52,8 @@ window.onload = function () {
 
 		if (!(board[y][x] === 'black') && !(board[y][x] === 'white')) {
 			board[y][x] = color
+
+			socket.emit("move", { color: color, x: x, y: y})
 
 			var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
 			circle.setAttribute('cx', x * 100 + 50)
