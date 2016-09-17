@@ -17,27 +17,13 @@ socket.on('connect', () => {
 })
 
 window.onload = function () {
-	// var client = new net.Socket()
-	// client.connect(1234, '127.0.0.1', () => {
-	// 	console.log('Connected')
-	// 	client.write("Jennie's boobs are awesome at go")
-	// })
-
-	// client.on('data', (data) => {
-	// 	console.log('Received: ' + data)
-	// })
-
-	// client.on('close', () => {
-	// 	console.log('Connection closed')
-	// })
-
 	var file = document.getElementById('board')
 	var svg = file.contentDocument
 	var display = svg.getElementsByTagName('svg')[0]
 
 	var board = createArray(19, 19)
 	var pt = display.createSVGPoint()
-	var black = false
+	var black = true
 
 	function cursourPoint(evt) {
 		pt.x = evt.clientX
@@ -48,38 +34,69 @@ window.onload = function () {
 	function placeStone(location, color) {
 		x = Math.round((location.x - 50) / 100)
 		y = Math.round((location.y - 50) / 100)
-		//console.log(x, y)
+		console.log('x: ' + x + ', y: ' + y)
 
-		if (!(board[y][x] === 'black') && !(board[y][x] === 'white')) {
-			board[y][x] = color
+		if (!(board[y][x] === 'b') && !(board[y][x] === 'white')) {
+			socket.emit('attemptMove', { black: black, x: x, y: y })
+		}
+	}
 
-			socket.emit("move", { color: color, x: x, y: y})
-
-			var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
-			circle.setAttribute('cx', x * 100 + 50)
-			circle.setAttribute('cy', y * 100 + 50)
-			circle.setAttribute('r', '40')
-			circle.setAttribute('fill', color)
-			display.appendChild(circle)
-
-			return true
+	function drawStone(x, y, color) {
+		var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
+		circle.setAttribute('cx', x * 100 + 50)
+		circle.setAttribute('cy', y * 100 + 50)
+		circle.setAttribute('r', '40')
+		
+		if (color === 'b') {
+			circle.setAttribute('fill', 'black')
 		}
 
-		else
-			return false
+		if (color === 'w') {
+			circle.setAttribute('fill', 'white')
+		}
+
+		display.appendChild(circle)
 	}
+
+	function refreshBoard(data) {
+		for (var y = 0; y < 19; y++) {
+			for (var x = 0; x < 19; x++) {
+				if (data[y][x] === 'b' || data[y][x] === 'w') {
+					drawStone(x, y, data[y][x])
+					board[y][x] = data[y][x]
+				}
+			}
+		}
+	}
+
+	socket.on('board', (data, color) => {
+		black = color
+		refreshBoard(data)
+	})
+
+	socket.on('move', (move) => {
+			if (move.black) {
+                board[move.y][move.x] = 'b'
+                black = false
+            }
+
+            else {
+                board[move.y][move.x] = 'w'
+                black = true
+            }
+
+			drawStone(move.x, move.y, board[move.y][move.x])
+	})
 
 	display.addEventListener('click', (evt) => {
 		var loc = cursourPoint(evt)
 
 		if (black) {
-			if (placeStone(loc, 'black'))
-				black = !black
+			placeStone(loc, 'b')
 		}
 
 		else {
-			if (placeStone(loc, 'white'))
-				black = !black
+			placeStone(loc, 'w')
 		}
 	}, false)
 }
