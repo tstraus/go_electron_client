@@ -75,17 +75,17 @@ window.onload = function () {
 	})
 
 	socket.on('move', (move) => {
-			if (move.black) {
-                board[move.y][move.x] = 'b'
-                black = false
-            }
+		if (move.black) {
+            board[move.y][move.x] = 'b'
+            black = false
+    	}
 
-            else {
-                board[move.y][move.x] = 'w'
-                black = true
-            }
+        else {
+        	board[move.y][move.x] = 'w'
+            black = true
+        }
 
-			drawStone(move.x, move.y, board[move.y][move.x])
+		drawStone(move.x, move.y, board[move.y][move.x])
 	})
 
 	display.addEventListener('click', (evt) => {
