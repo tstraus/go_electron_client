@@ -1,5 +1,5 @@
 var net = require('net')
-var socket = require('socket.io-client')('http://localhost:1234')
+var io = require('socket.io-client')
 
 function createArray(length) {
     var arr = new Array(length || 0), i = length
@@ -12,11 +12,12 @@ function createArray(length) {
     return arr
 }
 
-socket.on('connect', () => {
-    console.log('connection')
-})
+function newGame(ip) {
+    var socket = io.connect('http://' + ip + ':1234')
 
-window.onload = function () {
+    div = document.getElementById('ipInput')
+    div.parentNode.removeChild(div)
+
     var file = document.getElementById('board')
     var svg = file.contentDocument
     var display = svg.getElementsByTagName('svg')[0]
@@ -34,7 +35,6 @@ window.onload = function () {
     function placeStone(location, color) {
         x = Math.round((location.x - 50) / 100)
         y = Math.round((location.y - 50) / 100)
-        console.log('x: ' + x + ', y: ' + y)
 
         if (!(board[y][x] === 'b') && !(board[y][x] === 'white')) {
             socket.emit('attemptMove', { black: black, x: x, y: y })
@@ -68,6 +68,11 @@ window.onload = function () {
             }
         }
     }
+
+    socket.on('connect', () => {
+        console.log('connection')
+        connection = true
+    })
 
     socket.on('board', (data, color) => {
         black = color
